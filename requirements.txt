@@ -1,1 +1,7 @@
 websockets
+asyncio
+json
+secrets
+http
+os
+signal
