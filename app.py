@@ -1,5 +1,4 @@
 import asyncio
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 import json
 import secrets
@@ -8,7 +7,7 @@ import http
 import os
 import signal
 
-from websockets.server import serve
+from websockets.server import serve # type: ignore
 
 from connect4 import PLAYER1, PLAYER2, Connect4
 
