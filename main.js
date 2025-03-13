@@ -36,15 +36,20 @@ function receiveMoves(board, websocket) {
     console.log("Received event:", event);  // Debug
     switch (event.type) {
       case "init":
-        const joinLink = document.querySelector(".join");
-        const watchLink = document.querySelector(".watch");
+      const joinLink = document.querySelector(".join");
+      const watchLink = document.querySelector(".watch");
 
-        joinLink.href = "?join=" + event.join;
-        watchLink.href = "?watch=" + event.watch;
+      if (!joinLink || !watchLink) {
+        console.error("joinLink or watchLink not found in the DOM!");
+        return;
+      }
+      
+      joinLink.href = "?join=" + event.join;
+      watchLink.href = "?watch=" + event.watch;
 
-        console.log("Updated Join URL:", joinLink.href); // DEBUG
-        console.log("Updated Watch URL:", watchLink.href); // DEBUG
-        break;
+      console.log("Updated Join URL:", joinLink.href);
+      console.log("Updated Watch URL:", watchLink.href);
+      break;
       case "play":
         playMove(board, event.player, event.column, event.row);
         break;
