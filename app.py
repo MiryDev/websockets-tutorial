@@ -135,12 +135,15 @@ async def handler(websocket):
     event = json.loads(message)
     assert event["type"] == "init"
 
-    if "join" in event:
+    if "join" in event and event["join"] == "new":
+        await start(websocket)
+    elif "join" in event:
         await join(websocket, event["join"])
     elif "watch" in event:
         await watch(websocket, event["watch"])
     else:
         await start(websocket)
+
 
 
 def health_check(connection, request):

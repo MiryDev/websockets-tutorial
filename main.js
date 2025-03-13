@@ -18,16 +18,6 @@ function initGame(websocket) {
   });
 }
 
-function getWebSocketServer() {
-  if (window.location.host === "mirydev.github.io") {
-    return "wss://spare-adel-forza-4-project-e1e8058d.koyeb.app/";
-  } else if (window.location.host === "localhost:8000") {
-    return "ws://localhost:8001/";
-  } else {
-    throw new Error(`Unsupported host: ${window.location.host}`);
-  }
-}
-
 function showMessage(message) {
   window.setTimeout(() => window.alert(message), 50);
 }
@@ -80,6 +70,16 @@ function sendMoves(board, websocket) {
     console.log('Sending play event:', event);
     websocket.send(JSON.stringify(event));
   });
+}
+
+function getWebSocketServer() {
+  if (window.location.host === "mirydev.github.io") {
+    return "wss://spare-adel-forza-4-project-e1e8058d.koyeb.app/";
+  } else if (window.location.host === "localhost:8000") {
+    return "ws://localhost:8001/";
+  } else {
+    throw new Error(`Unsupported host: ${window.location.host}`);
+  }
 }
 
 window.addEventListener("DOMContentLoaded", () => {
