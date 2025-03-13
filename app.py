@@ -10,7 +10,6 @@ from websockets.asyncio.server import broadcast, serve
 from connect4 import PLAYER1, PLAYER2, Connect4
 
 JOIN = {}
-
 WATCH = {}
 
 async def error(websocket, message):
@@ -76,12 +75,10 @@ async def start(websocket):
         await websocket.send(json.dumps(event))
         await play(websocket, game, PLAYER1, connected)
     finally:
-        if not connected:
+        if len(connected) == 0:
             del JOIN[join_key]
             del WATCH[watch_key]
             print(f"Game {join_key} removed because no connection is active.")
-
-
 
 async def join(websocket, join_key):
     print(f"Trying to join game with key: {join_key}")  # DEBUG
@@ -106,9 +103,7 @@ async def join(websocket, join_key):
         await asyncio.gather(*tasks)
     else:
         await websocket.wait_closed()
-
     connected.remove(websocket)
-
 
 async def watch(websocket, watch_key):
     try:
