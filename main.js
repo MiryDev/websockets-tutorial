@@ -59,6 +59,7 @@ function sendMoves(board, websocket) {
   if (params.has("watch")) {
     return;
   }
+  
   board.addEventListener("click", ({ target }) => {
     const column = target.dataset.column;
     if (column === undefined) {
@@ -68,10 +69,17 @@ function sendMoves(board, websocket) {
       type: "play",
       column: parseInt(column, 10),
     };
+    
     console.log('Sending play event:', event);
-    websocket.send(JSON.stringify(event));
+    
+    if (websocket.readyState === WebSocket.OPEN) {
+      websocket.send(JSON.stringify(event));
+    } else {
+      console.error("WebSocket is not open. Current state:", websocket.readyState);
+    }
   });
 }
+
 
 function getWebSocketServer() {
   if (window.location.host === "mirydev.github.io") {
