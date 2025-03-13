@@ -94,18 +94,14 @@ async def join(websocket, join_key):
 
     connected.add(websocket)
 
-    if len(connected) == 2:  # Quando entrambi i giocatori sono presenti, avvia il gioco
-        player2 = websocket
-        await replay(player2, game)
-        tasks = [
-            play(player, game, p, connected)
-            for player, p in zip(connected, [PLAYER1, PLAYER2])
-        ]
-        await asyncio.gather(*tasks)  # Avvia entrambi i giocatori simultaneamente
-    else:
-        await websocket.wait_closed()
+    await replay(websocket, game)
+
+    if len(connected) == 2:
+        tasks = [play(player, game, p, connected) for player, p in zip(connected, [PLAYER1, PLAYER2])]
+        await asyncio.gather(*tasks)
 
     connected.remove(websocket)
+
 
 
 async def watch(websocket, watch_key):
