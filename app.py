@@ -26,14 +26,6 @@ async def error(websocket, message):
 
 
 async def replay(websocket, game):
-    """
-    Send previous moves.
-
-    """
-    # Make a copy to avoid an exception if game.moves changes while iteration
-    # is in progress. If a move is played while replay is running, moves will
-    # be sent out of order but each move will be sent once and eventually the
-    # UI will be consistent.
     for player, column, row in game.moves.copy():
         event = {
             "type": "play",
@@ -82,12 +74,6 @@ async def play(websocket, game, player, connected):
 
 
 async def start(websocket):
-    """
-    Handle a connection from the first player: start a new game.
-
-    """
-    # Initialize a Connect Four game, the set of WebSocket connections
-    # receiving moves from this game, and secret access tokens.
     game = Connect4()
     connected = {websocket}
 
@@ -98,8 +84,6 @@ async def start(websocket):
     WATCH[watch_key] = game, connected
 
     try:
-        # Send the secret access tokens to the browser of the first player,
-        # where they'll be used for building "join" and "watch" links.
         event = {
             "type": "init",
             "join": join_key,
@@ -114,11 +98,6 @@ async def start(websocket):
 
 
 async def join(websocket, join_key):
-    """
-    Handle a connection from the second player: join an existing game.
-
-    """
-    # Find the Connect Four game.
     try:
         game, connected = JOIN[join_key]
     except KeyError:
@@ -137,10 +116,6 @@ async def join(websocket, join_key):
 
 
 async def watch(websocket, watch_key):
-    """
-    Handle a connection from a spectator: watch an existing game.
-
-    """
     # Find the Connect Four game.
     try:
         game, connected = WATCH[watch_key]
@@ -160,11 +135,6 @@ async def watch(websocket, watch_key):
 
 
 async def handler(websocket):
-    """
-    Handle a connection and dispatch it according to who is connecting.
-
-    """
-    # Receive and parse the "init" event from the UI.
     message = await websocket.recv()
     event = json.loads(message)
     assert event["type"] == "init"
