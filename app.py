@@ -88,20 +88,15 @@ async def join(websocket, join_key):
     try:
         game, connected = JOIN[join_key]
     except KeyError:
-        print(f"Game {join_key} not found!")  # DEBUG
         await error(websocket, "Game not found.")
         return
-
+    
     connected.add(websocket)
-
-    await replay(websocket, game)
-
-    if len(connected) == 2:
-        tasks = [play(player, game, p, connected) for player, p in zip(connected, [PLAYER1, PLAYER2])]
-        await asyncio.gather(*tasks)
-
-    connected.remove(websocket)
-
+    try:
+        await replay(websocket, game)
+        await play(websocket, game, PLAYER2, connected)
+    finally:
+        connected.remove(websocket)
 
 
 async def watch(websocket, watch_key):
