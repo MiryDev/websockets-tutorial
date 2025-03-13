@@ -38,9 +38,6 @@ function receiveMoves(board, websocket) {
       case "init":
         document.querySelector(".join").href = "?join=" + event.join;
         document.querySelector(".watch").href = "?watch=" + event.watch;
-
-        console.log("Updated Join URL:", joinLink.href); // DEBUG
-        console.log("Updated Watch URL:", watchLink.href); // DEBUG
         break;
       case "play":
         playMove(board, event.player, event.column, event.row);
