@@ -24,10 +24,10 @@ function initGame(websocket) {
 
 
 function getWebSocketServer() {
-  if (window.location.host === "python-MiryDev.github.io") {
-    return "wss://spare-adel-forza-4-project-e1e8058d.koyeb.app/";
+  if (window.location.host === "mirydev.github.io") {
+    return "wss://spare-adel-forza-4-project-e1e8058d.koyeb.app/"; // Utilizza il server su Koyeb
   } else if (window.location.host === "localhost:8000") {
-    return "ws://localhost:8001/";
+    return "ws://localhost:8001/";  // Local server for testing
   } else {
     throw new Error(`Unsupported host: ${window.location.host}`);
   }
