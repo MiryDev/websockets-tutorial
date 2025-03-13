@@ -1,6 +1,7 @@
 import { createBoard, playMove } from "./connect4.js";
-const websocket = new WebSocket(getWebSocketServer());
 
+// Modifica qui per usare la funzione `getWebSocketServer` correttamente
+const websocket = new WebSocket(getWebSocketServer());
 
 function initGame(websocket) {
   websocket.addEventListener("open", () => {
@@ -22,17 +23,15 @@ function initGame(websocket) {
   });
 }
 
-
 function getWebSocketServer() {
   if (window.location.host === "mirydev.github.io") {
-    return "wss://spare-adel-forza-4-project-e1e8058d.koyeb.app/"; // Utilizza il server su Koyeb
+    return "wss://spare-adel-forza-4-project-e1e8058d.koyeb.app/"; // Server su Koyeb
   } else if (window.location.host === "localhost:8000") {
-    return "ws://localhost:8001/";  // Local server for testing
+    return "ws://localhost:8001/";  // Server locale per il testing
   } else {
     throw new Error(`Unsupported host: ${window.location.host}`);
   }
 }
-
 
 function showMessage(message) {
   window.setTimeout(() => window.alert(message), 50);
@@ -52,8 +51,7 @@ function receiveMoves(board, websocket) {
 
         console.log("Updated Join URL:", joinLink.href); // DEBUG
         console.log("Updated Watch URL:", watchLink.href); // DEBUG
-      break;
-
+        break;
 
       case "play":
         // Update the UI with the move.
@@ -99,8 +97,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Initialize the UI.
   const board = document.querySelector(".board");
   createBoard(board);
-  // Open the WebSocket connection and register event handlers.
-  const websocket = new WebSocket("ws://localhost:8001/");
+  // Ora la connessione WebSocket si apre correttamente
   initGame(websocket);
   receiveMoves(board, websocket);
   sendMoves(board, websocket);
