@@ -76,9 +76,11 @@ async def start(websocket):
         await websocket.send(json.dumps(event))
         await play(websocket, game, PLAYER1, connected)
     finally:
+        if not connected:
             del JOIN[join_key]
             del WATCH[watch_key]
             print(f"Game {join_key} removed because no connection is active.")
+
 
 
 async def join(websocket, join_key):
@@ -88,15 +90,24 @@ async def join(websocket, join_key):
     try:
         game, connected = JOIN[join_key]
     except KeyError:
+        print(f"Game {join_key} not found!")  # DEBUG
         await error(websocket, "Game not found.")
         return
-    
+
     connected.add(websocket)
-    try:
-        await replay(websocket, game)
-        await play(websocket, game, PLAYER2, connected)
-    finally:
-        connected.remove(websocket)
+
+    if len(connected) == 2:
+        player2 = websocket
+        await replay(player2, game)
+        tasks = [
+            play(player, game, p, connected)
+            for player, p in zip(connected, [PLAYER1, PLAYER2])
+        ]
+        await asyncio.gather(*tasks)
+    else:
+        await websocket.wait_closed()
+
+    connected.remove(websocket)
 
 
 async def watch(websocket, watch_key):
@@ -115,8 +126,9 @@ async def watch(websocket, watch_key):
 async def handler(websocket):
     message = await websocket.recv()
     event = json.loads(message)
-    assert event["type"] == "init"
-
+    if "type" not in event or event["type"] != "init":
+        await error(websocket, "Invalid event type")
+        return
     if "join" in event:
         await join(websocket, event["join"])
     elif "watch" in event:
