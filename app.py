@@ -80,8 +80,8 @@ async def start(websocket):
             del WATCH[watch_key]
             print(f"Game {join_key} removed because no connection is active.")
 
+
 async def join(websocket, join_key):
-    
     print(f"Trying to join game with key: {join_key}")  # DEBUG
     print(f"Available JOIN keys: {list(JOIN.keys())}")  # DEBUG
 
@@ -91,12 +91,21 @@ async def join(websocket, join_key):
         print(f"Game {join_key} not found!")  # DEBUG
         await error(websocket, "Game not found.")
         return
+
     connected.add(websocket)
-    try:
-        await replay(websocket, game)
-        await play(websocket, game, PLAYER2, connected)
-    finally:
-        connected.remove(websocket)
+
+    if len(connected) == 2:  # Quando entrambi i giocatori sono presenti, avvia il gioco
+        player2 = websocket
+        await replay(player2, game)
+        tasks = [
+            play(player, game, p, connected)
+            for player, p in zip(connected, [PLAYER1, PLAYER2])
+        ]
+        await asyncio.gather(*tasks)  # Avvia entrambi i giocatori simultaneamente
+    else:
+        await websocket.wait_closed()
+
+    connected.remove(websocket)
 
 
 async def watch(websocket, watch_key):
