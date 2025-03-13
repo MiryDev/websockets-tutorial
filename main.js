@@ -80,7 +80,6 @@ function sendMoves(board, websocket) {
   });
 }
 
-
 function getWebSocketServer() {
   if (window.location.host === "mirydev.github.io") {
     return "wss://spare-adel-forza-4-project-e1e8058d.koyeb.app/";
