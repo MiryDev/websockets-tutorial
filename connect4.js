@@ -37,10 +37,7 @@ function playMove(board, player, column, row) {
     throw new RangeError("row must be between 0 and 5.");
   }
   // Place checker in cell.
-  if (cellElement.classList.contains("empty")) {
-    cellElement.classList.remove("empty"); // Rimuove la classe "empty"
-    cellElement.classList.add(player); // Aggiunge il colore del giocatore
-  } else {
+  if (!cellElement.classList.replace("empty", player)) {
     throw new Error("cell must be empty.");
   }
 }
