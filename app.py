@@ -57,14 +57,14 @@ async def play(websocket, game, player, connected):
             "column": column,
             "row": row,
         }
-        broadcast(connected, json.dumps(event))
+        await broadcast(connected, json.dumps(event))
 
         if game.winner is not None:
             event = {
                 "type": "win",
                 "player": game.winner,
             }
-            broadcast(connected, json.dumps(event))
+            await broadcast(connected, json.dumps(event))
 
 
 async def start(websocket):
