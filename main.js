@@ -25,6 +25,7 @@ function showMessage(message) {
 function receiveMoves(board, websocket) {
   websocket.addEventListener("message", ({ data }) => {
     const event = JSON.parse(data);
+    console.log("Received event:", event);  // Debug
     switch (event.type) {
       case "init":
         const joinLink = document.querySelector(".join");
