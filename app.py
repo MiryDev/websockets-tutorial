@@ -16,7 +16,6 @@ WATCH = {}
 
 
 async def broadcast(connected, message):
-    """Manda un messaggio a tutti i client connessi."""
     for websocket in connected:
         await websocket.send(message)
 
