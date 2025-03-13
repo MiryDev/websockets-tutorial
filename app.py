@@ -1,19 +1,17 @@
 import asyncio
 import json
 import secrets
-
 import http
 import os
 import signal
+
 from websockets.asyncio.server import broadcast, serve 
 
 from connect4 import PLAYER1, PLAYER2, Connect4
 
-
 JOIN = {}
 
 WATCH = {}
-
 
 async def error(websocket, message):
     event = {
@@ -21,7 +19,6 @@ async def error(websocket, message):
         "message": message,
     }
     await websocket.send(json.dumps(event))
-
 
 async def replay(websocket, game):
     for player, column, row in game.moves.copy():
@@ -32,7 +29,6 @@ async def replay(websocket, game):
             "row": row,
         }
         await websocket.send(json.dumps(event))
-
 
 async def play(websocket, game, player, connected):
     async for message in websocket:
@@ -61,16 +57,15 @@ async def play(websocket, game, player, connected):
             }
             await broadcast(connected, json.dumps(event))
 
-
 async def start(websocket):
     game = Connect4()
     connected = {websocket}
 
     join_key = secrets.token_urlsafe(12)
-    watch_key = secrets.token_urlsafe(12)
+    JOIN[join_key] = game, connected
 
-    JOIN[join_key] = (game, connected)
-    WATCH[watch_key] = (game, connected)
+    watch_key = secrets.token_urlsafe(12)
+    WATCH[watch_key] = game, connected
 
     try:
         event = {
@@ -81,19 +76,14 @@ async def start(websocket):
         await websocket.send(json.dumps(event))
         await play(websocket, game, PLAYER1, connected)
     finally:
-        connected.remove(websocket)
-        if not connected:
             del JOIN[join_key]
             del WATCH[watch_key]
             print(f"Game {join_key} removed because no connection is active.")
-
-
 
 async def join(websocket, join_key):
     
     print(f"Trying to join game with key: {join_key}")  # DEBUG
     print(f"Available JOIN keys: {list(JOIN.keys())}")  # DEBUG
-
 
     try:
         game, connected = JOIN[join_key]
@@ -101,7 +91,6 @@ async def join(websocket, join_key):
         print(f"Game {join_key} not found!")  # DEBUG
         await error(websocket, "Game not found.")
         return
-
     connected.add(websocket)
     try:
         await replay(websocket, game)
@@ -115,8 +104,7 @@ async def watch(websocket, watch_key):
         game, connected = WATCH[watch_key]
     except KeyError:
         await error(websocket, "Game not found.")
-        return
-    
+        return    
     connected.add(websocket)
     try:
         await replay(websocket, game)
@@ -124,27 +112,21 @@ async def watch(websocket, watch_key):
     finally:
         connected.remove(websocket)
 
-
 async def handler(websocket):
     message = await websocket.recv()
     event = json.loads(message)
     assert event["type"] == "init"
 
-    if "join" in event and event["join"] == "new":
-        await start(websocket)
-    elif "join" in event:
+    if "join" in event:
         await join(websocket, event["join"])
     elif "watch" in event:
         await watch(websocket, event["watch"])
     else:
         await start(websocket)
 
-
-
 def health_check(connection, request):
     if request.path == "/healthz":
         return connection.respond(http.HTTPStatus.OK, "OK\n")
-
 
 async def main():
     port = int(os.environ.get("PORT", "8001"))
@@ -152,7 +134,6 @@ async def main():
         loop = asyncio.get_running_loop()
         loop.add_signal_handler(signal.SIGTERM, server.close)
         await server.wait_closed()
-
 
 if __name__ == "__main__":
     asyncio.run(main())

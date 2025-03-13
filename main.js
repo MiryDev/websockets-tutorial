@@ -1,6 +1,14 @@
 import { createBoard, playMove } from "./connect4.js";
 
-const websocket = new WebSocket(getWebSocketServer());
+function getWebSocketServer() {
+  if (window.location.host === "mirydev.github.io") {
+    return "wss://spare-adel-forza-4-project-e1e8058d.koyeb.app/";
+  } else if (window.location.host === "localhost:8000") {
+    return "ws://localhost:8001/";
+  } else {
+    throw new Error(`Unsupported host: ${window.location.host}`);
+  }
+}
 
 function initGame(websocket) {
   websocket.addEventListener("open", () => {
@@ -28,16 +36,12 @@ function receiveMoves(board, websocket) {
     console.log("Received event:", event);  // Debug
     switch (event.type) {
       case "init":
-        const joinLink = document.querySelector(".join");
-        const watchLink = document.querySelector(".watch");
-
-        joinLink.href = "?join=" + event.join;
-        watchLink.href = "?watch=" + event.watch;
+        document.querySelector(".join").href = "?join=" + event.join;
+        document.querySelector(".watch").href = "?watch=" + event.watch;
 
         console.log("Updated Join URL:", joinLink.href); // DEBUG
         console.log("Updated Watch URL:", watchLink.href); // DEBUG
         break;
-
       case "play":
         playMove(board, event.player, event.column, event.row);
         break;
@@ -68,10 +72,8 @@ function sendMoves(board, websocket) {
     const event = {
       type: "play",
       column: parseInt(column, 10),
-    };
-    
-    console.log('Sending play event:', event);
-    
+    };    
+    console.log('Sending play event:', event);    
     if (websocket.readyState === WebSocket.OPEN) {
       websocket.send(JSON.stringify(event));
     } else {
@@ -80,19 +82,10 @@ function sendMoves(board, websocket) {
   });
 }
 
-function getWebSocketServer() {
-  if (window.location.host === "mirydev.github.io") {
-    return "wss://spare-adel-forza-4-project-e1e8058d.koyeb.app/";
-  } else if (window.location.host === "localhost:8000") {
-    return "ws://localhost:8001/";
-  } else {
-    throw new Error(`Unsupported host: ${window.location.host}`);
-  }
-}
-
 window.addEventListener("DOMContentLoaded", () => {
   const board = document.querySelector(".board");
   createBoard(board);
+  const websocket = new WebSocket(getWebSocketServer());
   initGame(websocket);
   receiveMoves(board, websocket);
   sendMoves(board, websocket);
