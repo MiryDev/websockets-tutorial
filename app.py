@@ -5,7 +5,7 @@ import secrets
 import http
 import os
 import signal
-from websockets import serve
+from websockets.asyncio.server import broadcast, serve 
 
 from connect4 import PLAYER1, PLAYER2, Connect4
 
@@ -13,11 +13,6 @@ from connect4 import PLAYER1, PLAYER2, Connect4
 JOIN = {}
 
 WATCH = {}
-
-
-async def broadcast(connected, message):
-    for websocket in connected:
-        await websocket.send(message)
 
 
 async def error(websocket, message):
